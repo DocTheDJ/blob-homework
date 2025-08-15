@@ -7,6 +7,11 @@ const canvasEl = ref(undefined);
 const canvasWrapper = useTemplateRef('canvasWrapper');
 const { width: canW, height: canH } = useElementSize(canvasWrapper);
 const drawing = ref(false)
+let highlightRect: Rect | null = null;
+let isDrawing = false;
+let startX: number | null
+let startY: number | null;
+const rectDrawing = ref(false)
 
 let canvas: Canvas | null = null;
 const files = ref<File | File[]>([])
@@ -48,16 +53,55 @@ async function uploadFile(input: File[]) {
   reader.readAsDataURL(file);
 }
 
-function addRectangle() {
-  const rect = new Rect({
-    left: 100,
-    top: 50,
-    fill: 'yellow',
-    width: 200,
-    height: 100
-  })
-  addAny(rect);
-}
+watch(rectDrawing, (value) => {
+  if (value) {
+    canvas!.on("mouse:down", (opt) => {
+      const pointer = canvas!.getPointer(opt.e);
+      startX = pointer.x;
+      startY = pointer.y;
+
+      isDrawing = true;
+
+      highlightRect = new Rect({
+        left: startX,
+        top: startY,
+        fill: "rgba(255, 0, 0, 0.3)",
+        width: 0,
+        height: 0,
+        selectable: false,
+        evented: false
+      });
+
+      canvas!.add(highlightRect);
+    });
+
+    canvas!.on("mouse:move", (opt) => {
+      if (!isDrawing) return;
+      const pointer = canvas!.getPointer(opt.e);
+
+      const width = pointer.x - startX!;
+      const height = pointer.y - startY!;
+
+      highlightRect!.set({
+        width: Math.abs(width),
+        height: Math.abs(height),
+        left: width < 0 ? pointer.x : startX,
+        top: height < 0 ? pointer.y : startY
+      });
+
+      canvas!.renderAll();
+    });
+
+    canvas!.on("mouse:up", () => {
+      isDrawing = false;
+      highlightRect = null;
+    });
+  }else{
+    canvas!.off("mouse:down")
+    canvas!.off("mouse:move")
+    canvas!.off("mouse:up")
+  }
+})
 
 function addText() {
   const text = new Textbox("", {
@@ -84,7 +128,7 @@ function stopDrawing() {
   canvas!.freeDrawingBrush = undefined;
 }
 
-function clear(){
+function clear() {
   canvas?.remove(...canvas?.getObjects());
 }
 
@@ -99,6 +143,10 @@ function resizeCanvas() {
   canvas?.renderAll()
 }
 
+function toggleRectangle() {
+  rectDrawing.value = !rectDrawing.value;
+}
+
 </script>
 
 <template>
@@ -108,7 +156,8 @@ function resizeCanvas() {
     <!-- <v-file-input accept="image/*" label="Image input" @update:model-value="uploadFile" :model-value="files" :show-size="true" ></v-file-input> -->
     <div class="controls">
       <v-btn @click.prevent="clear">Clear</v-btn>
-      <v-btn @click.prevent="addRectangle">Rectangle</v-btn>
+      <v-btn @click.prevent="toggleRectangle" v-if="!rectDrawing">Draw Rectangle</v-btn>
+      <v-btn @click.prevent="toggleRectangle" v-else>Stop Draw Rectangle</v-btn>
       <v-btn @click.prevent="addText">Textbox</v-btn>
       <v-btn @click.prevent="startDrawing" v-if="!drawing">Draw</v-btn>
       <v-btn @click.prevent="stopDrawing" v-else>Stop draw</v-btn>
