@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, stop, useTemplateRef, watch } from 'vue';
-import { Canvas, FabricImage, FabricObject, filters, getEnv, PatternBrush, PencilBrush, Point, Rect, Textbox } from "fabric";
+import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
+// use library with many ways of drawing
+import { Canvas, FabricImage, FabricObject, PencilBrush, Point, Rect, Textbox } from "fabric";
 import { useElementSize } from '@vueuse/core';
 
+// declaration and some definition of variables and references which can have hooks
 const canvasEl = ref(undefined);
 const canvasWrapper = useTemplateRef('canvasWrapper');
 const { width: canW, height: canH } = useElementSize(canvasWrapper);
@@ -16,6 +18,7 @@ const rectDrawing = ref(false)
 let canvas: Canvas | null = null;
 const files = ref<File | File[]>([])
 
+// on mount of component, initialise the canvas and set it to fill the parent
 onMounted(() => {
   canvas = new Canvas(canvasEl.value, {
     backgroundColor: "#ffffff",
@@ -25,8 +28,10 @@ onMounted(() => {
   resizeCanvas()
 })
 
+// watching for changes in size of page, so that canavas would change it size as well
 watch([canW, canH], resizeCanvas);
 
+// clean up
 onBeforeUnmount(() => {
   if (canvas) {
     canvas.dispose();
@@ -34,34 +39,46 @@ onBeforeUnmount(() => {
   }
 })
 
+// file upload from vuetify component
 async function uploadFile(input: File[]) {
+  // even if many pictures are sent, only first is used
   const file = input[0];
   const reader = new FileReader();
-  const t = new Image()
-  t.onload = async () => {
-    const image = await FabricImage.fromURL(t.src)
+  const pseudoImage = new Image()
+  // this image is to get size of the picture given
+  pseudoImage.onload = async () => {
+    // used from url way cause it the simple upload is just bad
+    const image = await FabricImage.fromURL(pseudoImage.src)
     image.setXY(new Point(100, 50), "left", "top");
+    // scaled to canvas
     image.scaleToHeight(canH.value)
     image.scaleToWidth(canW.value)
     addAny(image, true);
   }
+  // reader function to get the url
   reader.onload = (e) => {
     const src = e.target?.result?.toString()!
-    t.src = src;
+    pseudoImage.src = src;
   }
 
+  // give reader the file to make the url and put the result to canvas
   reader.readAsDataURL(file);
 }
 
+// watching for reference change, which is triggered by clicks
+// could be in just two functions, but this seems safer
 watch(rectDrawing, (value) => {
   if (value) {
+    // listener for click down
     canvas!.on("mouse:down", (opt) => {
+      // get starting point
       const pointer = canvas!.getPointer(opt.e);
       startX = pointer.x;
       startY = pointer.y;
 
       isDrawing = true;
 
+      // prep changing rectangle
       highlightRect = new Rect({
         left: startX,
         top: startY,
@@ -75,13 +92,16 @@ watch(rectDrawing, (value) => {
       canvas!.add(highlightRect);
     });
 
+    // listener for moving mouse
     canvas!.on("mouse:move", (opt) => {
       if (!isDrawing) return;
+      // getting points to change the new rectangle in real time
       const pointer = canvas!.getPointer(opt.e);
 
       const width = pointer.x - startX!;
       const height = pointer.y - startY!;
 
+      // size updates
       highlightRect!.set({
         width: Math.abs(width),
         height: Math.abs(height),
@@ -92,6 +112,7 @@ watch(rectDrawing, (value) => {
       canvas!.renderAll();
     });
 
+    // mouse click up
     canvas!.on("mouse:up", () => {
       isDrawing = false;
       highlightRect = null;
@@ -103,6 +124,8 @@ watch(rectDrawing, (value) => {
   }
 })
 
+// add simple text to canvas
+// can be more variable, more action buttons required
 function addText() {
   const text = new Textbox("", {
     left: 100,
@@ -113,31 +136,38 @@ function addText() {
   addAny(text);
 }
 
+// general drawing
 function startDrawing() {
+  // using pencil as concept
   var brush = new PencilBrush(canvas!);
   drawing.value = true
   canvas!.isDrawingMode = true;
   canvas!.freeDrawingBrush = brush;
+  // size and color can vary
   canvas!.freeDrawingBrush.color = "black";
   canvas!.freeDrawingBrush.width = 5;
 }
 
+// clean up for drawing
 function stopDrawing() {
   drawing.value = false
   canvas!.isDrawingMode = false;
   canvas!.freeDrawingBrush = undefined;
 }
 
+// clears all objects in the canvas
 function clear() {
   canvas?.remove(...canvas?.getObjects());
 }
 
+// generalised function for adding objects
 function addAny(object: FabricObject, sendBack: boolean = false) {
   canvas?.add(object)
   sendBack ? canvas?.sendObjectToBack(object) : canvas?.setActiveObject(object)
   canvas?.renderAll()
 }
 
+// function to fit the canvas to its parent
 function resizeCanvas() {
   canvas?.setDimensions({ width: canW.value, height: canH.value });
   canvas?.renderAll()
@@ -151,9 +181,9 @@ function toggleRectangle() {
 
 <template>
   <div class="wrapper">
+    <!-- component from vuetify, very pretty -->
     <v-file-upload density="compact" :model-value="files" accept="image/*"
       @update:model-value="uploadFile"></v-file-upload>
-    <!-- <v-file-input accept="image/*" label="Image input" @update:model-value="uploadFile" :model-value="files" :show-size="true" ></v-file-input> -->
     <div class="controls">
       <v-btn @click.prevent="clear">Clear</v-btn>
       <v-btn @click.prevent="toggleRectangle" v-if="!rectDrawing">Draw Rectangle</v-btn>
