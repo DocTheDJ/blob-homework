@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
-import { Canvas, FabricImage, FabricObject, filters, Point, Rect, Textbox } from "fabric";
+import { onBeforeUnmount, onMounted, ref, stop, useTemplateRef, watch } from 'vue';
+import { Canvas, FabricImage, FabricObject, filters, getEnv, PatternBrush, PencilBrush, Point, Rect, Textbox } from "fabric";
 import { useElementSize } from '@vueuse/core';
 
 const canvasEl = ref(undefined);
 const canvasWrapper = useTemplateRef('canvasWrapper');
 const { width: canW, height: canH } = useElementSize(canvasWrapper);
+const drawing = ref(false)
 
 let canvas: Canvas | null = null;
 const files = ref<File | File[]>([])
@@ -30,7 +31,6 @@ onBeforeUnmount(() => {
 
 async function uploadFile(input: File[]) {
   const file = input[0];
-  console.log(file)
   const reader = new FileReader();
   const t = new Image()
   t.onload = async () => {
@@ -38,12 +38,13 @@ async function uploadFile(input: File[]) {
     image.setXY(new Point(100, 50), "left", "top");
     image.scaleToHeight(canH.value)
     image.scaleToWidth(canW.value)
-    addAny(image);
+    addAny(image, true);
   }
   reader.onload = (e) => {
     const src = e.target?.result?.toString()!
     t.src = src;
   }
+
   reader.readAsDataURL(file);
 }
 
@@ -68,9 +69,24 @@ function addText() {
   addAny(text);
 }
 
-function addAny(object: FabricObject) {
+function startDrawing() {
+  var brush = new PencilBrush(canvas!);
+  drawing.value = true
+  canvas!.isDrawingMode = true;
+  canvas!.freeDrawingBrush = brush;
+  canvas!.freeDrawingBrush.color = "black";
+  canvas!.freeDrawingBrush.width = 5;
+}
+
+function stopDrawing() {
+  drawing.value = false
+  canvas!.isDrawingMode = false;
+  canvas!.freeDrawingBrush = undefined;
+}
+
+function addAny(object: FabricObject, sendBack: boolean = false) {
   canvas?.add(object)
-  canvas?.setActiveObject(object)
+  sendBack ? canvas?.sendObjectToBack(object) : canvas?.setActiveObject(object)
   canvas?.renderAll()
 }
 
@@ -90,6 +106,8 @@ function resizeCanvas() {
       <v-btn>Clear</v-btn>
       <v-btn @click.prevent="addRectangle">Rectangle</v-btn>
       <v-btn @click.prevent="addText">Textbox</v-btn>
+      <v-btn @click.prevent="startDrawing" v-if="!drawing">Draw</v-btn>
+      <v-btn @click.prevent="stopDrawing" v-else>Stop draw</v-btn>
     </div>
     <div class="my-canvas-wrapper" ref="canvasWrapper">
       <canvas ref="canvasEl"></canvas>
