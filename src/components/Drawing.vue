@@ -84,6 +84,10 @@ function stopDrawing() {
   canvas!.freeDrawingBrush = undefined;
 }
 
+function clear(){
+  canvas?.remove(...canvas?.getObjects());
+}
+
 function addAny(object: FabricObject, sendBack: boolean = false) {
   canvas?.add(object)
   sendBack ? canvas?.sendObjectToBack(object) : canvas?.setActiveObject(object)
@@ -103,7 +107,7 @@ function resizeCanvas() {
       @update:model-value="uploadFile"></v-file-upload>
     <!-- <v-file-input accept="image/*" label="Image input" @update:model-value="uploadFile" :model-value="files" :show-size="true" ></v-file-input> -->
     <div class="controls">
-      <v-btn>Clear</v-btn>
+      <v-btn @click.prevent="clear">Clear</v-btn>
       <v-btn @click.prevent="addRectangle">Rectangle</v-btn>
       <v-btn @click.prevent="addText">Textbox</v-btn>
       <v-btn @click.prevent="startDrawing" v-if="!drawing">Draw</v-btn>
