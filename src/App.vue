@@ -3,7 +3,8 @@
     <v-main>
       <div class="wrapper">
         <!-- <HelloWorld /> -->
-        <Drawing/>
+        <!-- <Drawing/> -->
+        <ImageModifier/>
       </div>
     </v-main>
   </v-app>
@@ -11,6 +12,7 @@
 
 <script setup lang="ts">
 import Drawing from './components/Drawing.vue';
+import ImageModifier from './components/ImageModifier/index.vue';
 
 </script>
 

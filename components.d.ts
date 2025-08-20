@@ -8,7 +8,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Clear: typeof import('./src/components/ImageModifier/Dash/Clear.vue')['default']
+    Dash: typeof import('./src/components/ImageModifier/Dash/index.vue')['default']
     Drawing: typeof import('./src/components/Drawing.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    ImageModifier: typeof import('./src/components/ImageModifier/index.vue')['default']
+    Rectangle: typeof import('./src/components/ImageModifier/Dash/Rectangle.vue')['default']
   }
 }
