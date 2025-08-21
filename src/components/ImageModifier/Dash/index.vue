@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { DrawTypes, type ICommonProps } from './common';
+import { DrawTypes, Providing, useCanvas } from './common';
 import Clear from './Clear.vue';
 import Rectangle from './Rectangle.vue';
-import { ref } from 'vue';
+import { provide, ref} from 'vue';
 
-const props = defineProps<ICommonProps>()
+const canvas = useCanvas();
 
-const drawing = ref<DrawTypes>(DrawTypes.none);
+const isDrawing = ref(DrawTypes.none);
+provide(Providing.drawing, isDrawing)
 
 </script>
 
 <template>
-  <v-toolbar rounded="lg" floating absolute style="z-index: 10;">
+  <v-toolbar rounded="lg" floating absolute style="z-index: 10;" v-if="canvas != undefined">
     <v-btn icon="mdi-home"></v-btn>
-    <Clear :canvas="props.canvas"/>
-    <rectangle :canvas="props.canvas" :drawing="drawing"/>
+    <Clear />
+    <Rectangle/>
   </v-toolbar>
 </template>
 

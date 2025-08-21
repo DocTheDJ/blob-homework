@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { useElementSize } from '@vueuse/core';
 import { Canvas } from 'fabric';
-import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch, provide } from 'vue';
 import Dash from "./Dash/index.vue";
+import { Providing } from './Dash/common';
 
 // declaration and some definition of variables and references which can have hooks
 const canvasEl = ref(undefined);
 const canvasWrapper = useTemplateRef('canvasWrapper');
 const { width: canW, height: canH } = useElementSize(canvasWrapper);
-let canvas: Canvas | null = null;
+const canvas = ref<Canvas|null>(null)
+provide(Providing.canvas, canvas)
 
 onMounted(() => {
-  canvas = new Canvas(canvasEl.value, {
-    backgroundColor: "#212121",
+  canvas.value = new Canvas(canvasEl.value, {
+    backgroundColor: "#ffffff",//"#212121",
     selection: true,
     preserveObjectStacking: true,
   })
@@ -24,23 +26,23 @@ watch([canW, canH], resizeCanvas);
 
 // clean up
 onBeforeUnmount(() => {
-  if (canvas) {
-    canvas.dispose();
-    canvas = null;
+  if (canvas.value) {
+    canvas.value.dispose();
+    canvas.value = null;
   }
 })
 
 // function to fit the canvas to its parent
 function resizeCanvas() {
-  canvas?.setDimensions({ width: canW.value, height: canH.value });
-  canvas?.renderAll()
+  canvas.value?.setDimensions({ width: canW.value, height: canH.value });
+  canvas.value?.renderAll()
 }
 
 </script>
 
 <template>
   <div class="wrapper">
-    <Dash :canvas="canvas"/>
+    <Dash/>
     <div class="my-canvas-wrapper" ref="canvasWrapper">
       <canvas ref="canvasEl"></canvas>
     </div>
