@@ -11,6 +11,7 @@ declare module 'vue' {
     Clear: typeof import('./src/components/ImageModifier/Dash/Clear.vue')['default']
     Dash: typeof import('./src/components/ImageModifier/Dash/index.vue')['default']
     Drawing: typeof import('./src/components/Drawing.vue')['default']
+    Existing: typeof import('./src/components/ImageModifier/Dash/Existing.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     ImageModifier: typeof import('./src/components/ImageModifier/index.vue')['default']
     LabelIconButton: typeof import('./src/components/LabelIconButton/index.vue')['default']
