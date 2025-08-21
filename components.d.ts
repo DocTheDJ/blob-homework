@@ -14,6 +14,7 @@ declare module 'vue' {
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     ImageModifier: typeof import('./src/components/ImageModifier/index.vue')['default']
     LabelIconButton: typeof import('./src/components/LabelIconButton/index.vue')['default']
+    Pencil: typeof import('./src/components/ImageModifier/Dash/Pencil.vue')['default']
     Rectangle: typeof import('./src/components/ImageModifier/Dash/Rectangle.vue')['default']
   }
 }

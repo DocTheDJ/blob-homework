@@ -2,6 +2,7 @@
 import { DrawTypes, Providing, useCanvas } from './common';
 import Clear from './Clear.vue';
 import Rectangle from './Rectangle.vue';
+import Pencil from './Pencil.vue';
 import { provide, ref} from 'vue';
 
 const canvas = useCanvas();
@@ -16,6 +17,7 @@ provide(Providing.drawing, isDrawing)
     <v-btn icon="mdi-home"></v-btn>
     <Clear />
     <Rectangle/>
+    <Pencil/>
   </v-toolbar>
 </template>
 

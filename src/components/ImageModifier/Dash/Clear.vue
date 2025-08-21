@@ -5,8 +5,13 @@ const canvas = useCanvas()
 const drawing = useDrawing()
 
 function clear() {
-  canvas.value?.remove(...canvas.value?.getObjects());
-  drawing.value = DrawTypes.none;
+  const selected = canvas.value?.getActiveObjects()
+  if(selected?.length === 0){
+    canvas.value?.remove(...canvas.value?.getObjects());
+    drawing.value = DrawTypes.none;
+  }else{
+    canvas.value?.remove(...selected ?? []);
+  }
 }
 
 </script>

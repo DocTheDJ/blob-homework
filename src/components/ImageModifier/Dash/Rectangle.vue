@@ -35,8 +35,8 @@ watch(drawing!, (value) => {
         fill: "rgba(255, 0, 0, 0.3)",
         width: 0,
         height: 0,
-        selectable: false,
-        evented: false
+        // selectable: false,
+        // evented: false
       });
 
       canvas?.value!.add(highlightRect);
