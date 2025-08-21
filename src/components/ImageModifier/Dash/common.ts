@@ -13,7 +13,8 @@ export enum DrawTypes{
 
 export enum Providing{
   canvas = "canvas",
-  drawing = "drawing"
+  drawing = "drawing",
+  uploadImage = "uploadImage"
 }
 
 export type AnyRef<T> = Ref<T, T>

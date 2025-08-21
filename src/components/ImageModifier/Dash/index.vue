@@ -5,6 +5,7 @@ import Rectangle from './Rectangle.vue';
 import Pencil from './Pencil.vue';
 import { provide, ref, watch} from 'vue';
 import Existing from './Existing.vue';
+import InsertImage from './InsertImage.vue';
 
 const canvas = useCanvas();
 const selectionActive = ref(false);
@@ -35,6 +36,7 @@ watch(canvas, (e) => {
     <Clear />
     <Rectangle/>
     <Pencil/>
+    <InsertImage/>
     <Existing v-if="selectionActive"/>
   </v-toolbar>
 </template>
