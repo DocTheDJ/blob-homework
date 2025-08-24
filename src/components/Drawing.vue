@@ -51,8 +51,11 @@ async function uploadFile(input: File[]) {
     const image = await FabricImage.fromURL(pseudoImage.src)
     image.setXY(new Point(100, 50), "left", "top");
     // scaled to canvas
-    image.scaleToHeight(canH.value)
-    image.scaleToWidth(canW.value)
+    const scale = Math.min(canW.value / pseudoImage.width, canH.value / pseudoImage.height, 1);
+    image.scale(scale);
+
+    // image.scaleToHeight(canH.value)
+    // image.scaleToWidth(canW.value)
     addAny(image, true);
   }
   // reader function to get the url
@@ -117,7 +120,7 @@ watch(rectDrawing, (value) => {
       isDrawing = false;
       highlightRect = null;
     });
-  }else{
+  } else {
     canvas!.off("mouse:down")
     canvas!.off("mouse:move")
     canvas!.off("mouse:up")

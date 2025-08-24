@@ -50,13 +50,8 @@ function uploadImage(payload: Event) {
     const image = await FabricImage.fromURL(pseudoImage.src)
     image.setXY(new Point(100, 50), "left", "top");
     // scaled to canvas
-    image.scaleToHeight(canH.value)
-    image.scaleToWidth(canW.value)
-    image.set("lockScalingX", false)
-    image.set("lockScalingY", false)
-    image.set("hasControls", true)
-    image.set("selectable", true)
-    image.set("lockUniScaling", false)
+    const scale = Math.min(canW.value / pseudoImage.width, canH.value / pseudoImage.height, 1);
+    image.scale(scale);
     canvas.value?.add(image)
     canvas.value?.setActiveObject(image)
     canvas.value?.renderAll()
